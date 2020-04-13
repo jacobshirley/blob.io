@@ -129,7 +129,6 @@ module.exports = function (network) {
                             });
                         } else if (msg.cmd === "SET_PLAYER_RADIUS") {
                             let { id, radius } = msg;
-                            console.log(this.state.players, id);
                             this.state.players[id].radius = radius;
                             //console.log(this.players[player.id]);
                             this.players[id].setRadius(radius);
@@ -140,6 +139,13 @@ module.exports = function (network) {
                             this.players[id].destroy();
                             delete this.players[id];
                             delete this.state.players[id];
+                        } else if (msg.cmd === "CREATE_FOOD") {
+                            const { x, y, radius, colour } = msg;
+                            let obj = this.add.circle(x, y, radius, colour);
+
+                            this.physics.add.existing(obj);
+
+                            this.food.push(obj);
                         }
                     }
                 }

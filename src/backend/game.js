@@ -5,6 +5,9 @@ const EDIBLE_RADIUS_DIFFERENCE = 10;
 const RADIUS_EDIBILITY_MODIFIER = 1.6;
 const PLAYER_RADIUS = 50;
 
+const MAX_VEL_X = 10;
+const MAX_VEL_Y = 10;
+
 function getRandomColor() {
     var letters = '0123456789ABCDEF';
     var color = '0x';
@@ -44,8 +47,8 @@ module.exports = class ServerGame {
         }
     }
 
-    create() {
-        for (let i = 0; i < FOOD_COUNT; i++) {
+    createFood(count = FOOD_COUNT, queueNet) {
+        for (let i = 0; i < count; i++) {
             let obj = {
                 ...this.randPoint(),
                 radius: 10, 
@@ -54,8 +57,14 @@ module.exports = class ServerGame {
 
             this.state.food.push(obj);
 
-            //this.net.queue({ cmd: "CREATE", x: obj.x, y: obj.y, npc: true, radius: obj.radius, colour: obj.colour });
+            if (queueNet) {
+                this.net.queue({ cmd: "CREATE_FOOD", ...obj});
+            }  
         }
+    }
+
+    create() {
+        this.createFood();
 
         this.net.on("connection", ws => {
             this.state.players[ws.id] = {
@@ -98,17 +107,17 @@ module.exports = class ServerGame {
                     if (!p)
                         continue;
 
-                    p.x += m.velocity.x / 100;
-                    p.y += m.velocity.y / 100;
+                    p.x += Math.min(m.velocity.x / 100, MAX_VEL_X);
+                    p.y += Math.min(m.velocity.y / 100, MAX_VEL_Y);
     
                     this.net.queue({ cmd: "UPDATE", id: client.id, player: p });
-                } else if (m.cmd === "CREATE") {
                 }
             }
 
             //console.log(message);
         }
 
+        let removed = 0;
         this.state.food = this.state.food.filter((obj, index) => {
             for (let pId of Object.keys(this.state.players)) {
                 let p = this.state.players[pId];
@@ -125,7 +134,7 @@ module.exports = class ServerGame {
                     p.radius += obj.radius * SCALE_FACTOR;
 
                     //console.log("DESTROY");
-                    this.net.queue({ cmd: "DESTROY_FOOD", index });
+                    this.net.queue({ cmd: "DESTROY_FOOD", index: index - removed++ });
                     this.net.queue({ cmd: "SET_PLAYER_RADIUS", id: pId, radius: p.radius });
 
                     return false;
@@ -134,6 +143,8 @@ module.exports = class ServerGame {
             
             return true;
         });
+
+        this.createFood(removed, true);
 
         let playersToBeRemoved = {};
         for (let pId of Object.keys(this.state.players)) {
