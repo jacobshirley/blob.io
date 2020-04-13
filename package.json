@@ -1,0 +1,40 @@
+{
+  "name": "ci328-multiplayer-game",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "npx webpack",
+    "start-with-server": "concurrently --kill-others \"npm start\" \"nodemon src/backend/index.js\"",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JacobShirley95/CI328-multiplayer-game.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JacobShirley95/CI328-multiplayer-game/issues"
+  },
+  "homepage": "https://github.com/JacobShirley95/CI328-multiplayer-game#readme",
+  "dependencies": {
+    "canvas": "^2.6.1",
+    "express": "^4.17.1",
+    "jest-canvas-mock": "^2.2.0",
+    "jquery": "^3.5.0",
+    "jsdom": "^16.2.2",
+    "phaser": "^3.22.0",
+    "uuid": "^7.0.3",
+    "uuid4": "^1.1.4",
+    "ws": "^7.2.3"
+  },
+  "devDependencies": {
+    "concurrently": "^5.1.0"
+  },
+  "jest": {
+    "setupFiles": [
+      "jest-canvas-mock"
+    ]
+  }
+}
