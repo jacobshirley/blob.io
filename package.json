@@ -21,10 +21,10 @@
   "dependencies": {
     "express": "^4.17.1",
     "jquery": "^3.5.0",
-    "jsdom": "^16.2.2",
     "phaser": "^3.22.0",
     "uuid": "^7.0.3",
     "uuid4": "^1.1.4",
+    "webpack-cli": "^3.3.11",
     "ws": "^7.2.3"
   },
   "devDependencies": {

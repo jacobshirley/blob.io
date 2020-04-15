@@ -1,25 +1,6 @@
 const express = require("express");
 const app = express();
-const WebSocket = require("ws");
 const { ServerNetwork } = require("./network");
-
-const { JSDOM } = require('jsdom')
-
-const { window } = new JSDOM("", {
-  url: "http://localhost"
-});
-
-//global = { ...window, window };
-
-window.focus = () => {};
-
-global.window = window;
-global.performance = window.performance;
-global.navigator = window.navigator;
-global.document = window.document;
-global.Element = window.Element;
-global.Image = window.Image;
-//global = { window, ...window }
 
 const MultiplayerGame = require("./game.js");
 
