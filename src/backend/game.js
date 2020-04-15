@@ -1,6 +1,6 @@
 
 const FOOD_COUNT = 100;
-const SCALE_FACTOR = 0.01;
+const SCALE_FACTOR = 0.1;
 const EDIBLE_RADIUS_DIFFERENCE = 10;
 const RADIUS_EDIBILITY_MODIFIER = 1.1;
 const PLAYER_RADIUS = 50;
@@ -79,10 +79,12 @@ module.exports = class ServerGame {
         });
 
         this.net.on("disconnection", ws => {
-            delete this.state.players[ws.id];
             console.log("DISCONNECTED");
 
-            this.net.queue({cmd: "DESTROY_PLAYER", id: ws.id });
+            if (this.state.players[ws.id]) {
+                delete this.state.players[ws.id];
+                this.net.queue({cmd: "DESTROY_PLAYER", id: ws.id });
+            }
         });
     }
 

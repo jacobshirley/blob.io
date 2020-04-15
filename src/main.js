@@ -129,7 +129,7 @@ module.exports = function (network) {
                             });
                         } else if (msg.cmd === "SET_PLAYER_RADIUS") {
                             let { id, radius } = msg;
-                            this.state.players[id].radius = radius;
+                            //this.state.players[id].radius = radius;
                             //console.log(this.players[player.id]);
                             this.players[id].setRadius(radius);
                         } else if (msg.cmd === "DESTROY_PLAYER") {
@@ -146,6 +146,17 @@ module.exports = function (network) {
                             this.physics.add.existing(obj);
 
                             this.food.push(obj);
+                        } else if (msg.cmd === "CREATE_PLAYER") {
+                            const { id, x, y, radius, colour } = msg.player;
+
+                            if (this.players[id])
+                                continue;
+
+                            let obj = this.add.circle(x, y, radius, colour);
+
+                            this.physics.add.existing(obj);
+
+                            this.players[id] = obj; 
                         }
                     }
                 }
