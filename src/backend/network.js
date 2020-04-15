@@ -76,7 +76,7 @@ class ClientNetwork extends EventEmitter {
 
         this.isServer = isServer;
 
-        this.socket = new window.WebSocket("ws://localhost");
+        this.socket = new window.WebSocket("ws://" + window.location.hostname);
         this.socket.onmessage = m => {
             let json = JSON.parse(m.data);
 
