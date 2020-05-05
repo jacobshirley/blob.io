@@ -152,8 +152,6 @@ module.exports = class ServerGame {
 
         this.state.projectiles.push(projectile);
 
-        console.log("ok", projectile);
-
         this.net.queue({ cmd: "SPAWN_PROJECTILE", ...projectile });
 
         return projectile;
@@ -177,7 +175,7 @@ module.exports = class ServerGame {
                         radius: this.config.PLAYER_RADIUS,
                         colour: m.colour,
                         name: m.name,
-                        consumptionRate: 0
+                        health: 1
                     }
 
                     this.net.queue({cmd: "STATE", state: { ...this.state, id: client.id }}, client);
@@ -253,9 +251,9 @@ module.exports = class ServerGame {
 
                 if ((dx*dx) + (dy*dy) < dr*dr) {
                     p.radius += obj.radius * this.config.SCALE_FACTOR;
-                    p.consumptionRate += obj.radius / p.radius;
+                    p.health -= obj.radius / p.radius;
 
-                    if (p.consumptionRate > 1)
+                    if (p.health <= 0)
                         playersToBeRemoved[p.id] = true;
 
                     //this.currentMass -= obj.radius;
@@ -263,7 +261,7 @@ module.exports = class ServerGame {
 
                     //console.log("DESTROY");
                     this.net.queue({ cmd: "DESTROY_PROJECTILE", index: index - removed++ });
-                    this.net.queue({ cmd: "SET_PLAYER_ATTRIBUTES", id: pId, radius: p.radius });
+                    this.net.queue({ cmd: "PLAYER", player: p });
 
                     return false;
                 }
@@ -292,7 +290,7 @@ module.exports = class ServerGame {
 
                     //console.log("DESTROY");
                     this.net.queue({ cmd: "DESTROY_FOOD", index: index - removed++ });
-                    this.net.queue({ cmd: "SET_PLAYER_ATTRIBUTES", id: pId, radius: p.radius });
+                    this.net.queue({ cmd: "UPDATE", player: p });
 
                     return false;
                 }
@@ -335,7 +333,7 @@ module.exports = class ServerGame {
                         cause: winner.id
                     };
                     //console.log("DESTROY");
-                    this.net.queue({ cmd: "SET_PLAYER_ATTRIBUTES", id: winner.id, radius: winner.radius });
+                    this.net.queue({ cmd: "UPDATE", player: winner });
                 }
             }
         }
@@ -345,7 +343,7 @@ module.exports = class ServerGame {
             let player = this.state.players[p];
 
             const EXPLOSION_PIECES = 7;
-            if (player.consumptionRate > 1) {
+            if (player.health <= 0) {
                 for (let i = 1; i <= 2 * Math.PI; i += (2 * Math.PI) / EXPLOSION_PIECES)
                     this.createProjectile(player, {x: Math.cos(i), y: Math.sin(i)}, 20, player.radius / EXPLOSION_PIECES);
             }
@@ -360,12 +358,12 @@ module.exports = class ServerGame {
                 //p.radius *= this.config.SHRINK_RATE;
             }
 
-            p.consumptionRate -= this.config.CONSUMPTION_DECREASE;
+            p.health += this.config.CONSUMPTION_DECREASE;
 
-            if (p.consumptionRate < 0)
-                p.consumptionRate = 0;
+            if (p.health > 1)
+                p.health = 1;
 
-            this.net.queue({ cmd: "SET_PLAYER_ATTRIBUTES", id: pId, radius: p.radius, consumptionRate: p.consumptionRate });
+            this.net.queue({ cmd: "UPDATE", player: p });
         }
 
         let i = 0;

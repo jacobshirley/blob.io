@@ -11,6 +11,7 @@ module.exports = class MainGame extends Phaser.Scene {
         this.state = {};
         this.players = {};
         this.playersText = {};
+        this.playersHealth = {};
         this.food = [];
         this.projectiles = [];
         this.init = false;
@@ -99,7 +100,15 @@ module.exports = class MainGame extends Phaser.Scene {
                         let text = this.add.text(x, y, name, {font:"16px Arial"});
 
                         text.setDisplayOrigin(text.width / 2, text.height / 2);
+
                         this.playersText[p] = text;
+                        this.playersHealth[p] = this.add.graphics({
+                            fillStyle: {
+                                color: 0xffff00
+                            }
+                        });
+
+                        //this.playersHealth[p].setDisplayOrigin(50, 5);
                     }
 
                     this.cameras.main.startFollow(this.players[this.state.id]);
@@ -113,6 +122,7 @@ module.exports = class MainGame extends Phaser.Scene {
                         this.players[player.id].setRadius(player.radius);
                         this.players[player.id].setPosition(player.x, player.y);
                         this.playersText[player.id].setPosition(player.x, player.y);
+                        this.playersHealth[player.id].clear().fillRect(player.x - 50, player.y + player.radius + 15, player.health * 100, 10);
                     } else if (msg.cmd === "UPDATE_PROJECTILE") {
                         let { projectile, i} = msg;
                         this.state.projectiles[i] = projectile;
@@ -139,9 +149,9 @@ module.exports = class MainGame extends Phaser.Scene {
                             }
                             return true;
                         });
-                    } else if (msg.cmd === "SET_PLAYER_RADIUS") {
-                        let { id, radius } = msg;
-                        //this.state.players[id].radius = radius;
+                    } else if (msg.cmd === "SET_PLAYER_ATTRIBUTES") {
+                        let { id, radius,  } = msg;
+                        this.state.players[id].radius = radius;
                         //console.log(this.players[player.id]);
                         this.players[id].setRadius(radius);
                     } else if (msg.cmd === "DESTROY_PLAYER") {
@@ -149,8 +159,10 @@ module.exports = class MainGame extends Phaser.Scene {
                     
                         this.players[id].destroy();
                         this.playersText[id].destroy();
+                        this.playersHealth[id].destroy();
                         delete this.players[id];
                         delete this.playersText[id];
+                        delete this.playersHealth[id];
                         delete this.state.players[id];
 
                         if (!this.players[this.state.id] && cause) {
