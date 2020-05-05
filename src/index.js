@@ -1,8 +1,7 @@
 const Phaser = require("phaser");
 
 const MainGame = require("./main.js");
-
-const { ClientNetwork } = require("./backend/network");
+const Menu = require("./menu.js");
 
 let config = {
     autoPlay: false,
@@ -14,6 +13,9 @@ let config = {
         width: "100%",
         height: "100%"
     },
+    dom: {
+        createContainer: true
+    },
     physics: {
         default: 'arcade',
         arcade: {
@@ -21,7 +23,7 @@ let config = {
             debug: false
         }
     },
-    scene: MainGame(new ClientNetwork()),
+    scene: [Menu, MainGame],
 };
 
 let game = new Phaser.Game(config);
