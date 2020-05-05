@@ -122,7 +122,10 @@ module.exports = class MainGame extends Phaser.Scene {
                         this.players[player.id].setRadius(player.radius);
                         this.players[player.id].setPosition(player.x, player.y);
                         this.playersText[player.id].setPosition(player.x, player.y);
-                        this.playersHealth[player.id].clear().fillRect(player.x - 50, player.y + player.radius + 15, player.health * 100, 10);
+                        this.playersHealth[player.id].clear();
+                        
+                        if (player.health < 1)
+                            this.playersHealth[player.id].fillRect(player.x - 50, player.y + player.radius + 15, player.health * 100, 10);
                     } else if (msg.cmd === "UPDATE_PROJECTILE") {
                         let { projectile, i} = msg;
                         this.state.projectiles[i] = projectile;
