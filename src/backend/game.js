@@ -1,5 +1,7 @@
 
-const STANDARD_CONFIG = require("../standard.config.js");
+const STANDARD_CONFIG = require("../config/standard.server.config.js");
+
+const randomName = require("random-name");
 
 function getRandomColor() {
     var letters = '0123456789ABCDEF';
@@ -8,7 +10,7 @@ function getRandomColor() {
       color += letters[Math.floor(Math.random() * 16)];
     }
     return color;
-  }
+}
 
 module.exports = class ServerGame {
     constructor(net, config = STANDARD_CONFIG) {
@@ -36,25 +38,7 @@ module.exports = class ServerGame {
         
     }
 
-    createFood(count = this.config.FOOD_COUNT, queueNet) {
-        for (let i = 0; i < count; i++) {
-            let obj = {
-                ...this.randomPoint(),
-                radius: this.config.FOOD_RADIUS, 
-                colour: this.config.FOOD_COLOUR
-            };
-
-            this.state.food.push(obj);
-
-            if (queueNet) {
-                this.net.queue({ cmd: "CREATE_FOOD", ...obj});
-            }  
-
-            this.currentMass += this.config.FOOD_RADIUS;
-        }
-    }
-
-    spawnFood() {
+    spawnFood(queueNet) {
         //console.log(this.currentMass);
         let count = (this.config.MAX_WORLD_MASS - this.currentMass) / this.config.FOOD_RADIUS;
         //console.log(this.config.MAX_WORLD_MASS, this.currentMass);
@@ -62,12 +46,13 @@ module.exports = class ServerGame {
             let obj = {
                 ...this.randomPoint(),
                 radius: this.config.FOOD_RADIUS, 
-                colour: this.config.FOOD_COLOUR
+                colour: this.config.FOOD_COLOURS[Math.floor(Math.random() * this.config.FOOD_COLOURS.length)]
             };
 
             this.state.food.push(obj);
 
-            this.net.queue({ cmd: "CREATE_FOOD", ...obj});
+            if (queueNet)
+                this.net.queue({ cmd: "CREATE_FOOD", ...obj});
             this.currentMass += obj.radius;
         }
     }
@@ -102,16 +87,21 @@ module.exports = class ServerGame {
     }
 
     create() {
-        this.createFood();
+        this.spawnFood(false);
 
         this.net.on("connection", ws => {            
             
         });
 
         this.net.on("disconnection", ws => {
-            if (this.state.players[ws.id]) {
-                delete this.state.players[ws.id];
+            let p = this.state.players[ws.id];
+            if (p) {
+                this.currentMass -= p.radius;
+                this.createProjectile(p, {x: 0, y: 0}, 0, p.radius);
+
                 this.net.queue({cmd: "DESTROY_PLAYER", id: ws.id });
+
+                delete this.state.players[ws.id];
             }
         });
     }
@@ -174,7 +164,7 @@ module.exports = class ServerGame {
                         id: client.id,
                         radius: this.config.PLAYER_RADIUS,
                         colour: m.colour,
-                        name: m.name,
+                        name: m.name || randomName(),
                         health: 1
                     }
 
@@ -221,8 +211,6 @@ module.exports = class ServerGame {
                         y: p.vel.y / p.vel.magnitude
                     }
 
-
-
                     let projectile = this.createProjectile(p, vec, this.config.PROJECTILE_VELOCITY, p.radius * this.config.PROJECTILE_PROPORTION_TO_MAIN_BODY);
 
                     p.radius -= projectile.radius * this.config.SCALE_FACTOR;
@@ -251,7 +239,7 @@ module.exports = class ServerGame {
 
                 if ((dx*dx) + (dy*dy) < dr*dr) {
                     p.radius += obj.radius * this.config.SCALE_FACTOR;
-                    p.health -= obj.radius / p.radius;
+                    p.health -= (obj.radius / p.radius) * this.config.CONSUMPTION_SCALE;
 
                     if (p.health <= 0)
                         playersToBeRemoved[p.id] = true;
@@ -301,7 +289,7 @@ module.exports = class ServerGame {
 
         //this.createFood(removed, true);
 
-        this.spawnFood();
+        this.spawnFood(true);
 
         
         for (let pId of Object.keys(this.state.players)) {
@@ -355,7 +343,7 @@ module.exports = class ServerGame {
             let p = this.state.players[pId];
 
             if (p.radius > this.config.PLAYER_RADIUS) {
-                //p.radius *= this.config.SHRINK_RATE;
+                p.radius *= this.config.SHRINK_RATE;
             }
 
             p.health += this.config.CONSUMPTION_DECREASE;

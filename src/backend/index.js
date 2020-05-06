@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 
-const STANDARD_CONFIG = require("../standard.config.js");
+const STANDARD_CONFIG = require("../config/standard.server.config.js");
 const ServerGame = require("./game.js");
 const { ServerNetwork } = require("./network");
 

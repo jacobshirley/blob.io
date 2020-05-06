@@ -2,7 +2,7 @@ const Phaser = require("phaser");
 
 const { ClientNetwork } = require("./backend/network");
 
-module.exports = class MainGame extends Phaser.Scene {
+module.exports = config => class MainGame extends Phaser.Scene {
     constructor()
     {
         super({key: "main_game"});
@@ -23,6 +23,10 @@ module.exports = class MainGame extends Phaser.Scene {
     }
 
     create(data) {
+        this.scene.launch("hud", this.state.players);
+
+        this.hudScene = this.scene.get("hud");
+
         this.network.queue({ cmd: "SPAWN", colour: data.colour, name: data.name });
 
         let centre = new Phaser.Math.Vector2(this.cameras.main.centerX, this.cameras.main.centerY);
@@ -46,9 +50,12 @@ module.exports = class MainGame extends Phaser.Scene {
 
     update() {
         //this.circle.body.setVelocity(this.velocity.x, this.velocity.y);
-        let network = this.network;
 
-        const MAX_RADIUS_BEFORE_ZOOMING = 100;
+        this.hudScene.registry.set("myPlayerId", this.state.id);
+
+        this.hudScene.registry.set("players", this.state.players);
+
+        let network = this.network;
 
         if (network instanceof ClientNetwork) {
             let myPlayer = this.players[this.state.id];
@@ -159,6 +166,9 @@ module.exports = class MainGame extends Phaser.Scene {
                         this.players[id].setRadius(radius);
                     } else if (msg.cmd === "DESTROY_PLAYER") {
                         let { id, cause } = msg;
+
+                        if (id === this.state.id)
+                            delete this.state.id;
                     
                         this.players[id].destroy();
                         this.playersText[id].destroy();
@@ -167,10 +177,6 @@ module.exports = class MainGame extends Phaser.Scene {
                         delete this.playersText[id];
                         delete this.playersHealth[id];
                         delete this.state.players[id];
-
-                        if (!this.players[this.state.id] && cause) {
-                           // this.cameras.main.startFollow(this.players[cause]);
-                        }
                     } else if (msg.cmd === "CREATE_FOOD") {
                         const { x, y, radius, colour } = msg;
                         let obj = this.add.circle(x, y, radius, colour);
@@ -194,9 +200,14 @@ module.exports = class MainGame extends Phaser.Scene {
 
                         text.setDisplayOrigin(name.length * 3, 8);
                         this.playersText[id] = text;
+                        this.playersHealth[id] = this.add.graphics({
+                            fillStyle: {
+                                color: 0xffff00
+                            }
+                        });
                     } else if (msg.cmd === "SPAWN_PROJECTILE") {
                         const { x, y, radius, colour } = msg;
-                        console.log("SDFSDF", x, y);
+
                         let obj = this.add.circle(x, y, radius, colour);
 
                         this.physics.add.existing(obj);
@@ -205,15 +216,15 @@ module.exports = class MainGame extends Phaser.Scene {
 
                         //this.food.push(obj);
                     } else if (msg.cmd === "CURRENT_WORLD_MASS") {
-                        console.log(msg.mass);
+                        //console.log(msg.mass);
                     }
                 }
             }
 
             myPlayer = this.players[this.state.id];
 
-            if (myPlayer && myPlayer.radius > MAX_RADIUS_BEFORE_ZOOMING) {
-                this.cameras.main.setZoom(1 / (myPlayer.radius / MAX_RADIUS_BEFORE_ZOOMING));
+            if (myPlayer && myPlayer.radius > config.MAX_RADIUS_BEFORE_ZOOMING) {
+                this.cameras.main.setZoom(1 / (myPlayer.radius / config.MAX_RADIUS_BEFORE_ZOOMING));
             }
         }
         //this.circle.body.setVelocity(this.velocity.x, this.velocity.y);
@@ -222,8 +233,6 @@ module.exports = class MainGame extends Phaser.Scene {
                 return c.setDepth(999999999999);
 
             c.setDepth(c.radius * c.scale);
-        });
-
-        
+        });   
     }
 }
