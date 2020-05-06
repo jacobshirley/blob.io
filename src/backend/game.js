@@ -9,6 +9,8 @@ module.exports = class ServerGame {
         this.config = config;
         this.circles = [];
         this.state = {
+            width: config.WIDTH,
+            height: config.HEIGHT,
             food: [],
             players: {},
             projectiles: []
@@ -233,7 +235,7 @@ module.exports = class ServerGame {
                     if (p.health <= 0)
                         playersToBeRemoved[p.id] = true;
 
-                    this.net.queue({ cmd: "DESTROY_PROJECTILE", index: index - removed++ });
+                    this.net.queue({ cmd: "DESTROY_PROJECTILE", index: index - removed++, cause: p.id });
                     this.net.queue({ cmd: "PLAYER", player: p });
 
                     return false;
@@ -259,7 +261,7 @@ module.exports = class ServerGame {
                     this.currentMass -= obj.radius;
                     this.currentMass += obj.radius * this.config.SCALE_FACTOR;
 
-                    this.net.queue({ cmd: "DESTROY_FOOD", index: index - removed++ });
+                    this.net.queue({ cmd: "DESTROY_FOOD", index: index - removed++, cause: p.id });
                     this.net.queue({ cmd: "UPDATE", player: p });
 
                     return false;
@@ -310,6 +312,8 @@ module.exports = class ServerGame {
             if (player.health <= 0) {
                 for (let i = 1; i <= 2 * Math.PI; i += (2 * Math.PI) / EXPLOSION_PIECES)
                     this.createProjectile(player, {x: Math.cos(i), y: Math.sin(i)}, 20, player.radius / EXPLOSION_PIECES);
+
+                this.net.queue({ cmd: "EXPLODE_PLAYER", id: player.id });
             }
             delete this.state.players[p];
             this.net.queue({ cmd: "DESTROY_PLAYER", id: player.id, cause: info.cause });

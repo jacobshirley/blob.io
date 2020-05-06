@@ -1,5 +1,5 @@
-const HEADER_TEXT = {font:"24px Arial"};
-const ITEM_TEXT = {font:"16px Arial"};
+const HEADER_TEXT = {font:"24px Arial", color: "#000000"};
+const ITEM_TEXT = {font:"16px Arial", color: "#000000"};
 
 module.exports = class HUD extends Phaser.Scene {
     constructor() {

@@ -42,7 +42,6 @@ module.exports = class Loss extends Phaser.Scene {
             });
 
             this[val].on('pointerdown', pointer => {
-                console.log("HIII");
                 this.scene.stop("main_game");
                 this.scene.stop("hud");
                 this.scene.start(MENU_ITEMS[val].loadScene);

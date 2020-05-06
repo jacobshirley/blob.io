@@ -13,7 +13,10 @@ module.exports = config => class MainGame extends Phaser.Scene {
     }
 
     preload() {
-        
+        this.load.audio("shoot", "assets/sounds/shoot.wav");
+        this.load.audio("eat", "assets/sounds/eat.wav");
+        this.load.audio("explode", "assets/sounds/explode.wav");
+        this.load.image("background", "assets/backgrounds/dark-grid.png");
     }
 
     create(data) {
@@ -26,6 +29,9 @@ module.exports = config => class MainGame extends Phaser.Scene {
         this.food = [];
         this.projectiles = [];
         this.inited = false;
+        this.world = this.add.group();
+
+        this.cameras.main.setBackgroundColor('#ffffff');
 
         if (this.network) {
             this.network.close();
@@ -56,6 +62,11 @@ module.exports = config => class MainGame extends Phaser.Scene {
         this.input.keyboard.on('keydown-SPACE', (e) => {
             this.network.queue({ cmd: "SHOOT" });
         });
+
+        //this.background = this.add.tileSprite(0, 0, this.game.renderer.width, this.game.renderer.height, "background");
+
+        //this.background.setOrigin(0);
+        //this.background.setScrollFactor(0, 0);
     }
 
     update() {
@@ -128,6 +139,8 @@ module.exports = config => class MainGame extends Phaser.Scene {
                         //this.playersHealth[p].setDisplayOrigin(50, 5);
                     }
 
+                    this.world.add(this.players[this.state.id]);
+
                     this.cameras.main.startFollow(this.players[this.state.id]);
                     this.inited = true;
                 } else if (this.inited) {
@@ -150,7 +163,11 @@ module.exports = config => class MainGame extends Phaser.Scene {
 
                         this.projectiles[i].setPosition(projectile.x, projectile.y);
                     } else if (msg.cmd === "DESTROY_FOOD") {
-                        let { index } = msg;
+                        let { index, cause } = msg;
+
+                        if (cause === this.state.id) {
+                            this.sound.play("eat");
+                        }
                         //console.log(this.players[player.id]);
                         this.food = this.food.filter((f, i) => {
                             if (i === index) {
@@ -160,7 +177,10 @@ module.exports = config => class MainGame extends Phaser.Scene {
                             return true;
                         });
                     } else if (msg.cmd === "DESTROY_PROJECTILE") {
-                        let { index } = msg;
+                        let { index, cause } = msg;
+                        if (cause === this.state.id) {
+                            this.sound.play("eat");
+                        }
                         //console.log(this.players[player.id]);
                         this.projectiles = this.projectiles.filter((f, i) => {
                             if (i === index) {
@@ -188,6 +208,14 @@ module.exports = config => class MainGame extends Phaser.Scene {
                         if (id === this.state.id) {
                             this.scene.launch("loss");
                         }
+                    }  else if (msg.cmd === "EXPLODE_PLAYER") {
+                        let { id } = msg;
+
+                        //console.log("EXPLODING");
+
+                        this.sound.play("explode", {
+                            volume: 1
+                        });
                     } else if (msg.cmd === "CREATE_FOOD") {
                         const { x, y, radius, colour } = msg;
                         let obj = this.add.circle(x, y, radius, colour);
@@ -225,6 +253,20 @@ module.exports = config => class MainGame extends Phaser.Scene {
 
                         this.projectiles.push(obj);
 
+                        if (myPlayer) {
+                            let dx = x - myPlayer.x;
+                            let dy = y - myPlayer.y;
+                            let dist = (dx*dx) + (dy*dy);
+
+                            let volume = Math.max(1 - (dist / (this.state.width * this.state.height)), 0);
+
+                            console.log(volume, dist, x, y, myPlayer.x, myPlayer.y);
+
+                            this.sound.play("shoot", {
+                                volume: volume
+                            });
+                        }
+
                         //this.food.push(obj);
                     } else if (msg.cmd === "CURRENT_WORLD_MASS") {
                         //console.log(msg.mass);
@@ -235,15 +277,24 @@ module.exports = config => class MainGame extends Phaser.Scene {
             myPlayer = this.players[this.state.id];
 
             if (myPlayer && myPlayer.radius > config.MAX_RADIUS_BEFORE_ZOOMING) {
-                this.cameras.main.setZoom(1 / (myPlayer.radius / config.MAX_RADIUS_BEFORE_ZOOMING));
+                myPlayer.scale = 1 / (myPlayer.radius / config.MAX_RADIUS_BEFORE_ZOOMING);
+                //this.cameras.main.setZoom(1 / (myPlayer.radius / config.MAX_RADIUS_BEFORE_ZOOMING));
+                //this.background.scale = (myPlayer.radius / config.MAX_RADIUS_BEFORE_ZOOMING);
+            } else if (myPlayer) {
+                //this.background.tilePositionX = myPlayer.x;
+                //this.background.tilePositionY = myPlayer.y;
             }
         }
         //this.circle.body.setVelocity(this.velocity.x, this.velocity.y);
         this.children.list.forEach(c => {
+            if (c.type == "TileSprite")
+                return;
+
             if (typeof c.radius === "undefined")
                 return c.setDepth(999999999999);
 
             c.setDepth(c.radius * c.scale);
-        });   
+        });  
+        
     }
 }
