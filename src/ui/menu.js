@@ -32,7 +32,7 @@ const BALL_TYPES = [
 
 module.exports = class Menu extends Phaser.Scene {
     constructor() {
-        super({key: "Menu"});
+        super({key: "menu"});
     }
 
     preload() {

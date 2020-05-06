@@ -6,6 +6,17 @@ module.exports = config => class MainGame extends Phaser.Scene {
     constructor()
     {
         super({key: "main_game"});
+    }
+
+    init(data) {
+
+    }
+
+    preload() {
+        
+    }
+
+    create(data) {
         this.velocity = { x: 0, y: 0 };
         this.speedBoost = false;
         this.state = {};
@@ -14,16 +25,15 @@ module.exports = config => class MainGame extends Phaser.Scene {
         this.playersHealth = {};
         this.food = [];
         this.projectiles = [];
-        this.init = false;
+        this.inited = false;
+
+        if (this.network) {
+            this.network.close();
+        }
         this.network = new ClientNetwork();
-    }
 
-    preload() {
-        
-    }
-
-    create(data) {
         this.scene.launch("hud", this.state.players);
+        //this.scene.launch("loss");
 
         this.hudScene = this.scene.get("hud");
 
@@ -119,8 +129,8 @@ module.exports = config => class MainGame extends Phaser.Scene {
                     }
 
                     this.cameras.main.startFollow(this.players[this.state.id]);
-                    this.init = true;
-                } else if (this.init) {
+                    this.inited = true;
+                } else if (this.inited) {
                     if (msg.cmd === "UPDATE") {
                         let { player } = msg;
                         this.state.players[player.id] = player;
@@ -166,9 +176,6 @@ module.exports = config => class MainGame extends Phaser.Scene {
                         this.players[id].setRadius(radius);
                     } else if (msg.cmd === "DESTROY_PLAYER") {
                         let { id, cause } = msg;
-
-                        if (id === this.state.id)
-                            delete this.state.id;
                     
                         this.players[id].destroy();
                         this.playersText[id].destroy();
@@ -177,6 +184,10 @@ module.exports = config => class MainGame extends Phaser.Scene {
                         delete this.playersText[id];
                         delete this.playersHealth[id];
                         delete this.state.players[id];
+
+                        if (id === this.state.id) {
+                            this.scene.launch("loss");
+                        }
                     } else if (msg.cmd === "CREATE_FOOD") {
                         const { x, y, radius, colour } = msg;
                         let obj = this.add.circle(x, y, radius, colour);

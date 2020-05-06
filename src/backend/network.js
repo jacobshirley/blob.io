@@ -93,6 +93,9 @@ class ClientNetwork extends EventEmitter {
     }
 
     flush() {
+        if (this.socket.readyState !== window.WebSocket.OPEN)
+            return;
+
         this.socket.send(JSON.stringify(this.packets));
         this.packets = [];
     }

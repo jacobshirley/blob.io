@@ -7,6 +7,10 @@ module.exports = class HUD extends Phaser.Scene {
         this.playersCache = {};
     }
 
+    init(data) {
+            
+    }
+
     preload() {
         
     }
@@ -19,6 +23,10 @@ module.exports = class HUD extends Phaser.Scene {
         this.add.text(x, y, "Scoreboard", HEADER_TEXT);
 
         this.scoreText = this.add.text(20, this.game.renderer.height - 50, "Size: ", HEADER_TEXT);
+
+        for (let i = 1; i <= 10; i++) {
+            this.playerScoreboard.push(this.add.text(x, y + 20 + (i * 30), `${i}:`,ITEM_TEXT));
+        }
     }
 
     getRadiiOfPlayers() {
@@ -31,25 +39,27 @@ module.exports = class HUD extends Phaser.Scene {
         let myPlayerId = this.registry.get("myPlayerId");
         let radii = this.getRadiiOfPlayers();
 
-        if (typeof myPlayerId !== "undefined")
+        if (typeof myPlayerId !== "undefined" && players[myPlayerId])
             this.scoreText.setText("Score: " + Math.round(players[myPlayerId].radius));
 
         if (JSON.stringify(radii) != JSON.stringify(this.playersCache)) {
             this.playersCache = radii;
 
-            radii.sort((a, b) => a.radius - b.radius);
-
-            this.playerScoreboard.forEach(e => {
-                e.destroy();
-            });
-
-            this.playerScoreboard = [];
+            radii.sort((a, b) => b.radius - a.radius);
 
             let x = this.game.renderer.width - 200;
             let y = 10;
 
             for (let [i, p] of radii.entries()) {
-                this.playerScoreboard.push(this.add.text(x, y + 50 + (i * 30), (p.name || "[no name]") + ": " + Math.round(p.radius)));
+                if (i >= 10)
+                    continue;
+                    
+                this.playerScoreboard[i].setText(`${p.name}: ${p.radius}`);
+                this.playerScoreboard[i].visible = true;
+            }
+
+            for (let i = radii.length; i < this.playerScoreboard.length; i++) {
+                this.playerScoreboard[i].visible = false;
             }
         }
     }

@@ -5,6 +5,7 @@ const clientConfig = require("./config/standard.client.config");
 const MainGame = require("./main.js");
 const Menu = require("./ui/menu.js");
 const HUD = require("./ui/hud.js");
+const Loss = require("./ui/loss.js");
 
 let config = {
     autoPlay: false,
@@ -26,7 +27,7 @@ let config = {
             debug: false
         }
     },
-    scene: [Menu, MainGame(clientConfig), HUD],
+    scene: [Menu, MainGame(clientConfig), HUD, Loss],
 };
 
 let game = new Phaser.Game(config);

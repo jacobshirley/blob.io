@@ -31,10 +31,5 @@
   "devDependencies": {
     "concurrently": "^5.1.0",
     "webpack": "^4.43.0"
-  },
-  "jest": {
-    "setupFiles": [
-      "jest-canvas-mock"
-    ]
   }
 }

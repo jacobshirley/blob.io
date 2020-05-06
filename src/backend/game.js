@@ -3,15 +3,6 @@ const STANDARD_CONFIG = require("../config/standard.server.config.js");
 
 const randomName = require("random-name");
 
-function getRandomColor() {
-    var letters = '0123456789ABCDEF';
-    var color = '0x';
-    for (var i = 0; i < 6; i++) {
-      color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-}
-
 module.exports = class ServerGame {
     constructor(net, config = STANDARD_CONFIG) {
         this.velocity = { x: 0, y: 0 };
@@ -235,8 +226,6 @@ module.exports = class ServerGame {
                 let dx = p.x - obj.x;
                 let dy = p.y - obj.y;
 
-                //console.log(dx, dy);
-
                 if ((dx*dx) + (dy*dy) < dr*dr) {
                     p.radius += obj.radius * this.config.SCALE_FACTOR;
                     p.health -= (obj.radius / p.radius) * this.config.CONSUMPTION_SCALE;
@@ -244,10 +233,6 @@ module.exports = class ServerGame {
                     if (p.health <= 0)
                         playersToBeRemoved[p.id] = true;
 
-                    //this.currentMass -= obj.radius;
-                    //this.currentMass += obj.radius * this.config.SCALE_FACTOR;
-
-                    //console.log("DESTROY");
                     this.net.queue({ cmd: "DESTROY_PROJECTILE", index: index - removed++ });
                     this.net.queue({ cmd: "PLAYER", player: p });
 
@@ -269,14 +254,11 @@ module.exports = class ServerGame {
                 let dx = p.x - obj.x;
                 let dy = p.y - obj.y;
 
-                //console.log(dx, dy);
-
                 if ((dx*dx) + (dy*dy) < dr*dr) {
                     p.radius += obj.radius * this.config.SCALE_FACTOR;
                     this.currentMass -= obj.radius;
                     this.currentMass += obj.radius * this.config.SCALE_FACTOR;
 
-                    //console.log("DESTROY");
                     this.net.queue({ cmd: "DESTROY_FOOD", index: index - removed++ });
                     this.net.queue({ cmd: "UPDATE", player: p });
 
@@ -287,10 +269,7 @@ module.exports = class ServerGame {
             return true;
         });
 
-        //this.createFood(removed, true);
-
         this.spawnFood(true);
-
         
         for (let pId of Object.keys(this.state.players)) {
             let p = this.state.players[pId];
@@ -310,8 +289,6 @@ module.exports = class ServerGame {
                 let winner = p.radius > p2.radius ? p : p2;
                 let loser = p.radius > p2.radius ? p2 : p;
 
-                //console.log(dx, dy);
-
                 if (!playersToBeRemoved[loser.id] && (dx*dx) + (dy*dy) < dr*dr && Math.abs(r - targetR) >= this.config.EDIBLE_RADIUS_DIFFERENCE) {
                     winner.radius += loser.radius * this.config.SCALE_FACTOR;
                     this.currentMass -= loser.radius;
@@ -320,7 +297,6 @@ module.exports = class ServerGame {
                     playersToBeRemoved[loser.id] = {
                         cause: winner.id
                     };
-                    //console.log("DESTROY");
                     this.net.queue({ cmd: "UPDATE", player: winner });
                 }
             }
@@ -369,9 +345,6 @@ module.exports = class ServerGame {
 
         this.net.queue({ cmd: "CURRENT_WORLD_MASS", mass: this.currentMass });
 
-
         this.net.flush();
     }
 }
-
-//console.log(game);
