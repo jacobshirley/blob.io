@@ -237,7 +237,8 @@ module.exports = config => class MainGame extends Phaser.Scene {
 
                         let text = this.add.text(x, y, name || "U WOT", {font:"16px Arial"});
 
-                        text.setDisplayOrigin(name.length * 3, 8);
+                        text.setDisplayOrigin(text.width / 2, text.height / 2);
+                        
                         this.playersText[id] = text;
                         this.playersHealth[id] = this.add.graphics({
                             fillStyle: {

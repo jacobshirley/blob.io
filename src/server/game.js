@@ -153,7 +153,7 @@ module.exports = class ServerGame {
                         continue;
 
                     this.state.players[client.id] = {
-                        ...this.randomPointPlayerCheck(100),
+                        ...this.randomPointPlayerCheck(this.config.FOOD_MIN_DISTANCE_AWAY_FROM_PLAYER),
                         id: client.id,
                         radius: this.config.PLAYER_RADIUS,
                         colour: m.colour,
@@ -308,10 +308,9 @@ module.exports = class ServerGame {
             let info = playersToBeRemoved[p];
             let player = this.state.players[p];
 
-            const EXPLOSION_PIECES = 7;
             if (player.health <= 0) {
-                for (let i = 1; i <= 2 * Math.PI; i += (2 * Math.PI) / EXPLOSION_PIECES)
-                    this.createProjectile(player, {x: Math.cos(i), y: Math.sin(i)}, 20, player.radius / EXPLOSION_PIECES);
+                for (let i = 1; i <= 2 * Math.PI; i += (2 * Math.PI) / this.config.EXPLOSION_PIECES)
+                    this.createProjectile(player, {x: Math.cos(i), y: Math.sin(i)}, 20, player.radius / this.config.EXPLOSION_PIECES);
 
                 this.net.queue({ cmd: "EXPLODE_PLAYER", id: player.id });
             }

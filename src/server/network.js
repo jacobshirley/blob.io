@@ -22,6 +22,7 @@ class ServerNetwork extends EventEmitter {
 
             ws.on('close', () => {
                 this.clients = this.clients.filter(cl => cl.id !== ws.id);
+                
                 delete this.clientPackets[ws.id];
                 delete this.clientMap[ws.id];
 
@@ -67,7 +68,5 @@ class ServerNetwork extends EventEmitter {
         this.packets = [];
     }
 }
-
-
 
 module.exports = ServerNetwork;
