@@ -236,7 +236,7 @@ module.exports = class ServerGame {
                         playersToBeRemoved[p.id] = true;
 
                     this.net.queue({ cmd: "DESTROY_PROJECTILE", index: index - removed++, cause: p.id });
-                    this.net.queue({ cmd: "PLAYER", player: p });
+                    this.net.queue({ cmd: "UPDATE", player: p });
 
                     return false;
                 }
