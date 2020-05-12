@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "npx webpack",
-    "start-with-server": "concurrently --kill-others \"npm start\" \"nodemon src/backend/index.js\"",
+    "start-with-server": "concurrently --kill-others \"npm start\" \"nodemon src/server/index.js\"",
     "test": "jest"
   },
   "repository": {
