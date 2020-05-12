@@ -125,7 +125,7 @@ module.exports = config => class MainGame extends Phaser.Scene {
 
                         this.players[p] = obj;
 
-                        let text = this.add.text(x, y, name, {font:"16px Arial"});
+                        let text = this.add.text(x, y, name || "", {font:"16px Arial"});
 
                         text.setDisplayOrigin(text.width / 2, text.height / 2);
 
@@ -235,10 +235,10 @@ module.exports = config => class MainGame extends Phaser.Scene {
 
                         this.players[id] = obj; 
 
-                        let text = this.add.text(x, y, name || "U WOT", {font:"16px Arial"});
+                        let text = this.add.text(x, y, name || "", {font:"16px Arial"});
 
                         text.setDisplayOrigin(text.width / 2, text.height / 2);
-                        
+
                         this.playersText[id] = text;
                         this.playersHealth[id] = this.add.graphics({
                             fillStyle: {
@@ -260,8 +260,6 @@ module.exports = config => class MainGame extends Phaser.Scene {
                             let dist = (dx*dx) + (dy*dy);
 
                             let volume = Math.max(1 - (dist / (this.state.width * this.state.height)), 0);
-
-                            console.log(volume, dist, x, y, myPlayer.x, myPlayer.y);
 
                             this.sound.play("shoot", {
                                 volume: volume
