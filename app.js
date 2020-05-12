@@ -1,1 +1,1 @@
-const app = require("./src/backend/index");
+const app = require("./src/server/index");
