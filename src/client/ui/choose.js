@@ -24,9 +24,12 @@ const BALL_TYPES = [
         label: "Purple"
     },
     {
-        key: "doge",
-        image: "assets/doge.png",
-        label: "Doge"
+        colour: "0xffff00",
+        label: "Yellow"
+    },
+    {
+        colour: "0x00ffff",
+        label: "Cyan"
     }
 ]
 
@@ -40,7 +43,7 @@ module.exports = class Choose extends Phaser.Scene {
             this.load.image(bt.key, bt.image);
         });
 
-        this.load.html("name_box", "assets/name_box.html");
+        this.load.html("name_box", "assets/html/name_box.html");
     }
 
     create() {
