@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/JacobShirley95/CI328-multiplayer-game#readme",
   "dependencies": {
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "jquery": "^3.5.0",
     "phaser": "^3.22.0",
     "random-name": "^0.1.2",
