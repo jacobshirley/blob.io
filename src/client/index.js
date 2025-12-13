@@ -1,12 +1,10 @@
-const Phaser = require("phaser");
-
-const clientConfig = require("../config/standard.client.config");
-
-const MainGame = require("./main.js");
-const Choose = require("./ui/choose.js");
-const HUD = require("./ui/hud.js");
-const Loss = require("./ui/loss.js");
-const GameMenu = require("./ui/game-menu.js");
+import Phaser from "phaser";
+import clientConfig from "../config/standard.client.config.js";
+import MainGame from "./main.js";
+import Choose from "./ui/choose.js";
+import HUD from "./ui/hud.js";
+import Loss from "./ui/loss.js";
+import GameMenu from "./ui/game-menu.js";
 
 let config = {
     autoPlay: false,
@@ -33,4 +31,4 @@ let config = {
 
 let game = new Phaser.Game(config);
 
-module.exports = game;
+export default game;

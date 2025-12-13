@@ -8,7 +8,7 @@ const MENU_ITEMS = {
     }
 }
 
-module.exports = class Loss extends Phaser.Scene {
+export default class Loss extends Phaser.Scene {
     constructor() {
         super({key: "loss"});
     }

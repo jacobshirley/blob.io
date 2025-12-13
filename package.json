@@ -1,35 +1,37 @@
 {
-  "name": "ci328-multiplayer-game",
+  "name": "blob.io",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
+  "private": true,
   "scripts": {
-    "start": "npx webpack",
+    "start": "webpack",
     "start-with-server": "concurrently --kill-others \"npm start\" \"nodemon src/server/index.js\"",
     "test": "jest"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/JacobShirley95/CI328-multiplayer-game.git"
+    "url": "git+https://github.com/jacobshirley/blob.io.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/JacobShirley95/CI328-multiplayer-game/issues"
+    "url": "https://github.com/jacobshirley/blob.io/issues"
   },
-  "homepage": "https://github.com/JacobShirley95/CI328-multiplayer-game#readme",
+  "homepage": "https://github.com/jacobshirley/blob.io#readme",
   "dependencies": {
-    "express": "^4.17.1",
+    "express": "^5.2.1",
     "jquery": "^3.5.0",
-    "phaser": "^3.22.0",
+    "phaser": "^3.90.0",
     "random-name": "^0.1.2",
     "uuid": "^7.0.3",
     "uuid4": "^1.1.4",
     "webpack-cli": "^3.3.11",
-    "ws": "^7.2.3"
+    "ws": "^8.18.3"
   },
   "devDependencies": {
     "concurrently": "^5.1.0",
+    "nodemon": "^3.1.11",
     "webpack": "^4.43.0"
   }
 }

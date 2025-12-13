@@ -33,7 +33,7 @@ const BALL_TYPES = [
     }
 ]
 
-module.exports = class Choose extends Phaser.Scene {
+export default class Choose extends Phaser.Scene {
     constructor() {
         super({key: "menu"});
     }

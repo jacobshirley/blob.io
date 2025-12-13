@@ -1,8 +1,7 @@
-const Phaser = require("phaser");
+import Phaser from "phaser";
+import ClientNetwork from "./network.js";
 
-const ClientNetwork = require("./network");
-
-module.exports = config => class MainGame extends Phaser.Scene {
+export default config => class MainGame extends Phaser.Scene {
     constructor()
     {
         super({key: "main_game"});

@@ -6,7 +6,7 @@ const MENU_ITEMS = {
     "volumeToggle": "Toggle sound",
 }
 
-module.exports = (items => class GameMenu extends Phaser.Scene {
+export default (items => class GameMenu extends Phaser.Scene {
     constructor() {
         super({key: "game_menu"});
     }

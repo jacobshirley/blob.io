@@ -1,6 +1,4 @@
-const EventEmitter = require('events');
-
-class ClientNetwork extends EventEmitter {
+class ClientNetwork extends EventTarget {
     constructor(isServer = false) {
         super();
 
@@ -40,4 +38,4 @@ class ClientNetwork extends EventEmitter {
     }
 }
 
-module.exports = ClientNetwork;
+export default ClientNetwork;
